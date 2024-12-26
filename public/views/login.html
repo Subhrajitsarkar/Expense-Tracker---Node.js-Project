@@ -4,28 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
 </head>
 
 <body>
-    <form action="" onsubmit="signup(event)">
-        <label for="name">Enter name:</label>
-        <input type="text" name="name" id="name" required>
-
+    <form action="" onsubmit="login(event)">
         <label for="email">Enter email:</label>
         <input type="email" name="email" id="email" required>
 
         <label for="password">Enter password:</label>
         <input type="password" name="password" id="password" required>
-
-        <button type="submit">Signup</button>
+        <button type="submit">Login</button>
     </form>
-
-    <a href="../Login/login.html">Existing user login</a>
+    <a href="/">New user - Signup now</a>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-    <script src="./signup.js"></script>
+    <script src="../js/login.js"></script>
 </body>
 
 </html>
