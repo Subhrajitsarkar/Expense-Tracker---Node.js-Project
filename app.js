@@ -1,15 +1,19 @@
-let express = require('express')
-let app = express()
+let express = require('express');
+let app = express();
 
-let bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+let bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-let cors = require('cors')
-app.use(cors())
+let cors = require('cors');
+app.use(cors());
 
-let path = require('path')
-app.use(express.static(path.join(__dirname, 'public')))
+let path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
+let bcrypt = require('bcrypt');
+let User = require('./models/userModel');
+let sequelize = require('./utils/database');
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'views', 'signup.html'));
@@ -18,34 +22,34 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'views', 'login.html'));
 });
-let User = require('./models/userModel')
-let sequelize = require('./utils/database')
 
 app.post('/user/signup', async (req, res, next) => {
     try {
         let { name, email, password } = req.body;
-        let data = await User.create({ name, email, password })
-        res.status(201).json({ data })
+
+        let hashedPassword = await bcrypt.hash(password, 10);
+
+        let data = await User.create({ name, email, password: hashedPassword });
+        res.status(201).json({ data });
     } catch (err) {
-        console.log('error in signup page');
-        res.status(500).json({ error: err.message })
+        console.error('Error in signup:', err.message);
+        res.status(500).json({ error: err.message });
     }
-})
+});
 
 app.post('/user/login', async (req, res, next) => {
     try {
         let { email, password } = req.body;
 
-        // Fetch user from the database
-        let user = await User.findAll({ where: { email } });
+        let user = await User.findOne({ where: { email } });
 
-        if (user.length === 0) {
-            // If user doesn't exist
+        if (!user) {
             return res.status(404).json({ success: false, message: 'User does not exist' });
         }
 
-        // Check password
-        if (user[0].password === password) {
+        let isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (isPasswordValid) {
             res.status(200).json({ success: true, message: "User logged in successfully" });
         } else {
             res.status(401).json({ success: false, message: "Invalid credentials" });
@@ -56,9 +60,8 @@ app.post('/user/login', async (req, res, next) => {
     }
 });
 
-
 sequelize.sync()
     .then(() => {
-        app.listen(3000, () => console.log('server running at PORT 3000'))
+        app.listen(3000, () => console.log('Server running at PORT 3000'));
     })
-    .catch(err => console.log('error in sync', err))
+    .catch(err => console.error('Error in syncing database:', err.message));
