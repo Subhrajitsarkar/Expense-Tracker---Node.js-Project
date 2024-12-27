@@ -13,6 +13,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let bcrypt = require('bcrypt');
 let User = require('./models/userModel');
+let Expense = require('./models/expenseModel');
 let sequelize = require('./utils/database');
 
 app.get('/', (req, res) => {
@@ -22,6 +23,11 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'views', 'login.html'));
 });
+
+app.get('/expense', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'views', 'expense.html'));
+});
+
 
 app.post('/user/signup', async (req, res, next) => {
     try {
@@ -56,6 +62,42 @@ app.post('/user/login', async (req, res, next) => {
         }
     } catch (err) {
         console.error('Error in login:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/expense/add-expense', async (req, res) => {
+    try {
+        let { price, description, category } = req.body;
+        let data = await Expense.create({ price, description, category });
+        res.status(201).json({ success: true, data });
+    } catch (err) {
+        console.error('Error adding expense:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.get('/expense/get-expenses', async (req, res) => {
+    try {
+        let expenses = await Expense.findAll();
+        res.status(200).json(expenses);
+    } catch (err) {
+        console.error('Error fetching expenses:', err.message);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.delete('/expense/get-expense/:id', async (req, res) => {
+    try {
+        let id = req.params.id;
+        let result = await Expense.destroy({ where: { id } });
+        if (result) {
+            res.status(200).json({ success: true, message: 'Expense deleted successfully' });
+        } else {
+            res.status(404).json({ success: false, message: 'Expense not found' });
+        }
+    } catch (err) {
+        console.error('Error deleting expense:', err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 });
