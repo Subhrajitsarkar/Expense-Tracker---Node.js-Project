@@ -13,13 +13,7 @@ async function saveExpense(event) {
 
         const obj = { price, description, category };
 
-        const response = await axios.post(
-            "http://localhost:3000/expense/add-expense",
-            obj,
-            {
-                headers: { Authorization: token },
-            }
-        );
+        const response = await axios.post("http://localhost:3000/expense/add-expense", obj, { headers: { Authorization: token }, });
 
         if (response.status === 201) {
             document.getElementById("formId").reset();
@@ -40,12 +34,7 @@ async function displayExpense() {
             return;
         }
 
-        const response = await axios.get(
-            "http://localhost:3000/expense/get-expenses",
-            {
-                headers: { Authorization: token },
-            }
-        );
+        const response = await axios.get("http://localhost:3000/expense/get-expenses", { headers: { Authorization: token }, });
 
         const expenseDetails = response.data;
         const show = document.getElementById("ulId");
@@ -70,12 +59,7 @@ async function deleteExpense(id) {
             return;
         }
 
-        const response = await axios.delete(
-            `http://localhost:3000/expense/get-expense/${id}`,
-            {
-                headers: { Authorization: token },
-            }
-        );
+        const response = await axios.delete(`http://localhost:3000/expense/get-expense/${id}`, { headers: { Authorization: token }, });
 
         if (response.status === 200) {
             displayExpense();
@@ -88,3 +72,36 @@ async function deleteExpense(id) {
 }
 
 window.onload = displayExpense;
+
+
+document.getElementById('rzp-button1').onclick = async function (e) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("User is not authenticated. Please log in.");
+            return;
+        }
+
+        const response = await axios.get('http://localhost:3000/purchase/premiummembership', { headers: { "Authorization": token } });
+
+        const options = {
+            key: response.data.key_id,
+            order_id: response.data.order.id,
+            handler: async function (paymentResponse) {
+                await axios.post('http://localhost:3000/purchase/updatetransactionstatus',
+                    {
+                        order_id: options.order_id,
+                        payment_id: paymentResponse.razorpay_payment_id,
+                    },
+                    { headers: { "Authorization": token } }
+                );
+                alert('You are now a premium user!');
+            },
+        };
+
+        const rzp1 = new Razorpay(options);
+        rzp1.open(); // Open Razorpay payment interface
+    } catch (err) {
+        console.error("Error in Razorpay integration:", err.message);
+    }
+};

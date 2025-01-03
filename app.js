@@ -7,7 +7,10 @@ const jwt = require('jsonwebtoken');
 const sequelize = require('./utils/database');
 const User = require('./models/userModel');
 const Expense = require('./models/expenseModel');
+let Order = require('./models/orderModel')
 const userauthentication = require('./middleware/auth');
+let Razorpay = require('razorpay')
+require('dotenv').config();
 
 const app = express();
 
@@ -117,11 +120,59 @@ app.delete('/expense/get-expense/:id', userauthentication.authenticate, async (r
     }
 });
 
+app.get('/premiummembership', userauthentication.authenticate, async (req, res) => {
+    try {
+        const rzp = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+
+        const amount = 1000;
+        const options = {
+            amount: amount,
+            currency: 'INR',
+            receipt: `order_rcptid_${new Date().getTime()}`,
+        };
+
+        const order = await rzp.orders.create(options);
+
+        await req.user.createOrder({ orderid: order.id, status: 'PENDING' });
+
+        res.status(201).json({ order, key_id: rzp.key_id });
+    } catch (err) {
+        console.error('Error in creating Razorpay order:', err.message);
+        res.status(500).json({ message: 'Something went wrong', error: err.message });
+
+    }
+});
+app.post('/updatetransactionstatus', userauthentication.authenticate, async (req, res) => {
+    try {
+        const { payment_id, order_id } = req.body;
+
+        const order = await Order.findOne({ where: { orderid: order_id } });
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const promise1 = order.update({ paymentid: payment_id, status: 'SUCCESSFUL' });
+        const promise2 = req.user.update({ ispremiumuser: true });
+
+        await Promise.all([promise1, promise2]);
+
+        res.status(202).json({ success: true, message: 'Transaction Successful' });
+    } catch (err) {
+        console.error('Error in updating transaction status:', err.message);
+        res.status(500).json({ message: 'Something went wrong', error: err.message });
+    }
+})
+
 User.hasMany(Expense);
 Expense.belongsTo(User);
 
-sequelize
-    .sync()
+User.hasMany(Order)
+Order.belongsTo(User)
+
+sequelize.sync()
     .then(() => {
         app.listen(3000, () => console.log('Server running at PORT 3000'));
     })
