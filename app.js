@@ -7,9 +7,9 @@ const jwt = require('jsonwebtoken');
 const sequelize = require('./utils/database');
 const User = require('./models/userModel');
 const Expense = require('./models/expenseModel');
-let Order = require('./models/orderModel')
+const Order = require('./models/orderModel')
 const userauthentication = require('./middleware/auth');
-let Razorpay = require('razorpay')
+const Razorpay = require('razorpay')
 require('dotenv').config();
 
 const app = express();
@@ -43,7 +43,7 @@ app.post('/user/signup', async (req, res) => {
 });
 
 function generateAccessToken(id, name) {
-    return jwt.sign({ userId: id, name }, 'subhra@123');
+    return jwt.sign({ userId: id, name }, process.env.JWT_SECRET);
 }
 
 app.post('/user/login', async (req, res) => {
@@ -122,6 +122,8 @@ app.delete('/expense/get-expense/:id', userauthentication.authenticate, async (r
 
 app.get('/premiummembership', userauthentication.authenticate, async (req, res) => {
     try {
+        console.log('Creating Razorpay order'); // Log the start of the process
+
         const rzp = new Razorpay({
             key_id: process.env.RAZORPAY_KEY_ID,
             key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -135,6 +137,7 @@ app.get('/premiummembership', userauthentication.authenticate, async (req, res) 
         };
 
         const order = await rzp.orders.create(options);
+        console.log('Razorpay order created:', order); // Log the created order
 
         await req.user.createOrder({ orderid: order.id, status: 'PENDING' });
 
@@ -142,7 +145,6 @@ app.get('/premiummembership', userauthentication.authenticate, async (req, res) 
     } catch (err) {
         console.error('Error in creating Razorpay order:', err.message);
         res.status(500).json({ message: 'Something went wrong', error: err.message });
-
     }
 });
 app.post('/updatetransactionstatus', userauthentication.authenticate, async (req, res) => {

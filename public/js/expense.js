@@ -71,24 +71,31 @@ async function deleteExpense(id) {
     }
 }
 
-window.onload = displayExpense;
-
-
 document.getElementById('rzp-button1').onclick = async function (e) {
     try {
+        console.log('Buy Premium button clicked');
+
         const token = localStorage.getItem('token');
+        console.log('Token:', token);
+
         if (!token) {
             alert("User is not authenticated. Please log in.");
             return;
         }
 
-        const response = await axios.get('http://localhost:3000/purchase/premiummembership', { headers: { "Authorization": token } });
+        const response = await axios.get('http://localhost:3000/premiummembership', {
+            headers: { "Authorization": token }
+        });
+
+        console.log('Response:', response); // Log the response
 
         const options = {
-            key: response.data.key_id,
-            order_id: response.data.order.id,
-            handler: async function (paymentResponse) {
-                await axios.post('http://localhost:3000/purchase/updatetransactionstatus',
+            "key": response.data.key_id,
+            "order_id": response.data.order.id,
+            "handler": async function (paymentResponse) {
+                console.log('Payment successful:', paymentResponse); // Log payment success
+
+                await axios.post('http://localhost:3000/updatetransactionstatus',
                     {
                         order_id: options.order_id,
                         payment_id: paymentResponse.razorpay_payment_id,
@@ -99,9 +106,22 @@ document.getElementById('rzp-button1').onclick = async function (e) {
             },
         };
 
+        console.log('Options:', options); // Log the options
+
         const rzp1 = new Razorpay(options);
         rzp1.open(); // Open Razorpay payment interface
+        e.preventDefault();
+
+        rzp1.on('payment.failed', function (response) {
+            console.log('Payment Failed:', response); // Log payment failure
+            alert('Something went wrong with the payment. Please try again!');
+        });
     } catch (err) {
         console.error("Error in Razorpay integration:", err.message);
+        alert('Something went wrong. Please try again.');
     }
+};
+
+window.onload = function () {
+    displayExpense();
 };
