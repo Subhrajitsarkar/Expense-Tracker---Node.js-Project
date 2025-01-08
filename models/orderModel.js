@@ -1,8 +1,6 @@
 let Sequelize = require('sequelize')
 let sequelize = require('../utils/database')
 
-//id, name, password, phone no, role
-
 let Order = sequelize.define('order', {
     id: {
         type: Sequelize.INTEGER,

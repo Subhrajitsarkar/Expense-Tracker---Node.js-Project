@@ -1,7 +1,6 @@
 async function signup(event) {
     try {
         event.preventDefault()
-        console.log(event.target.email.value);
 
         let signupDetails = {
             name: event.target.name.value,

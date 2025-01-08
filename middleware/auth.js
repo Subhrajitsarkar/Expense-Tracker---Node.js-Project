@@ -12,6 +12,18 @@ exports.authenticate = async (req, res, next) => {
         }
 
         req.user = user;
+
+        // req.user will carry:-
+        // req.user = {
+        //     id: 1,
+        //     name: "John Doe",
+        //     email: "john@example.com",
+        //     password: "hashedpassword123", // Typically hashed
+        //     createdAt: "2023-01-01T12:00:00.000Z",
+        //     updatedAt: "2023-01-01T12:00:00.000Z",
+        //     Sequelize instance methods and properties, e.g., .save(), .destroy()
+        // };
+
         next();
     } catch (err) {
         console.error("Authentication failed:", err.message);
