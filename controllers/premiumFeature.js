@@ -1,41 +1,25 @@
 let User = require('../models/userModel')
 let Expense = require('../models/expenseModel')
 let sequelize = require('../utils/database')
-let e = require('express')
 
 const getUserLeaderBoard = async (req, res) => {
     try {
-        let users = await User.findAll()
-        let expenses = await Expense.findAll()
-        let userAggregatedExpenses = {}
-        console.log(expenses);
-        expenses.forEach((expenses) => {
-
-            if (userAggregatedExpenses[expenses.userId]) {
-                userAggregatedExpenses[expenses.userId] = userAggregatedExpenses[expenses.userId] += expenseModel.price
-            }
-            else {
-                userAggregatedExpenses[expenses.userId] = expenseModel.price;
-            }
+        let leaderboardofusers = await User.findAll({
+            attributes: ['id', 'name', [sequelize.fn('sum', sequelize.col('expenses.price')), 'total_cost']],
+            include: [
+                {
+                    model: Expense,
+                    attributes: []
+                }
+            ],
+            group: ['user.id'], // Ensure grouping matches the user alias
+            order: [['total_cost', 'DESC']] //(or) order: [[sequelize.literal('total_cost'), 'DESC']], // Sort by aggregated column
         })
-        var userLeaderBoardDetails = [];
-
-        // Iterate through all users to prepare leaderboard data
-        users.forEach((user) => {
-            userLeaderBoardDetails.push({
-                name: user.name,
-                total_cost: userAggregatedExpenses[user.id] || 0 // Default to 0 if no expenses found
-            });
-        });
-
-        // Log the leaderboard data before sorting
-        console.log(userLeaderBoardDetails);
-
-        // Sort users in descending order of total cost
-        userLeaderBoardDetails.sort((a, b) => b.total_cost - a.total_cost);
-
-        // Return the sorted leaderboard as a JSON response
-        res.status(200).json(userLeaderBoardDetails);
+        // Check if leaderboard has any data
+        if (leaderboardofusers.length === 0) {
+            return res.status(200).json({ message: "No data found", leaderboard: [] });
+        }
+        res.status(200).json(leaderboardofusers);
 
     } catch (err) {
         console.log(err);
