@@ -19,3 +19,6 @@ async function login(event) {
         document.body.innerHTML += `<div>${err.message}</div>`;
     }
 }
+function forgotpassword() {
+    window.location.href = "../views/forgotpassword.html";
+}
