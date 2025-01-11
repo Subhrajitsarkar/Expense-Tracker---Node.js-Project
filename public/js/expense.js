@@ -1,3 +1,4 @@
+// Function to save an expense
 async function saveExpense(event) {
     try {
         event.preventDefault();
@@ -5,18 +6,14 @@ async function saveExpense(event) {
         const description = document.getElementById("description").value;
         const category = document.getElementById("category").value;
 
-        const token = localStorage.getItem("token"); // Retrieve token from localStorage
+        const token = localStorage.getItem("token");
         if (!token) {
             alert("User is not authenticated. Please log in.");
             return;
         }
-        const obj = { price, description, category };
 
-        // If { headers: { Authorization: token } } is omitted:-
-        // 1)The authenticate middleware cannot retrieve the token.
-        // 2)The middleware will fail to verify the user's identity.
-        // 3)The server responds with a 401 Unauthorized error.
-        const response = await axios.post("http://localhost:3000/expense/add-expense", obj, { headers: { Authorization: token }, });
+        const obj = { price, description, category };
+        const response = await axios.post("http://localhost:3000/expense/add-expense", obj, { headers: { Authorization: token } });
 
         if (response.status === 201) {
             document.getElementById("formId").reset();
@@ -29,12 +26,17 @@ async function saveExpense(event) {
     }
 }
 
-function showPremiumuserMessage() {
-    document.getElementById('rzp-button1').style.visibility = 'hidden'
-    document.getElementById('message').innerHTML = 'YOu are a premium user now'
+// Function to display premium user options
+function showPremiumUserFeatures() {
+    document.getElementById('rzp-button1').style.visibility = 'hidden';
+    document.getElementById('message').innerHTML = 'You are a premium user now';
+
+    // Display filters for daily, weekly, monthly
+    document.getElementById('premium-filters').style.display = 'flex';
+    document.getElementById('download-button').style.display = 'block';
 }
 
-//copy from stackoverflow
+// Function to parse JWT token
 function parseJwt(token) {
     try {
         const base64Url = token.split('.')[1];
@@ -53,20 +55,23 @@ function parseJwt(token) {
     }
 }
 
-async function displayExpense() {
+// Function to display expenses
+async function displayExpense(filter = "all") {
     try {
         const token = localStorage.getItem("token");
-        let decodedToken = parseJwt(token)
-        let ispremiumuser = decodedToken.ispremiumuser
-        // let isadmin = localStorage.getItem('isadmin');
-        if (ispremiumuser) {
-            showPremiumuserMessage()
+        let decodedToken = parseJwt(token);
+        let isPremiumUser = decodedToken.ispremiumuser;
+
+        if (isPremiumUser) {
+            showPremiumUserFeatures();
         }
+
         if (!token) {
             alert("User is not authenticated. Please log in.");
             return;
         }
-        const response = await axios.get("http://localhost:3000/expense/get-expenses", { headers: { Authorization: token }, });
+
+        const response = await axios.get(`http://localhost:3000/expense/get-expenses?filter=${filter}`, { headers: { Authorization: token } });
 
         const expenseDetails = response.data;
         const show = document.getElementById("ulId");
@@ -83,6 +88,7 @@ async function displayExpense() {
     }
 }
 
+// Function to delete an expense
 async function deleteExpense(id) {
     try {
         const token = localStorage.getItem("token");
@@ -91,7 +97,7 @@ async function deleteExpense(id) {
             return;
         }
 
-        const response = await axios.delete(`http://localhost:3000/expense/get-expense/${id}`, { headers: { Authorization: token }, });
+        const response = await axios.delete(`http://localhost:3000/expense/get-expense/${id}`, { headers: { Authorization: token } });
 
         if (response.status === 200) {
             displayExpense();
@@ -103,21 +109,22 @@ async function deleteExpense(id) {
     }
 }
 
+// Razorpay integration for premium membership
 document.getElementById('rzp-button1').onclick = async function (e) {
     try {
         const token = localStorage.getItem('token');
-
         if (!token) {
             alert("User is not authenticated. Please log in.");
             return;
         }
+
         const response = await axios.get('http://localhost:3000/razorpay/premiummembership', { headers: { Authorization: token } });
 
         const options = {
             key: response.data.key_id,
             order_id: response.data.order.id,
             handler: async function (paymentResponse) {
-                console.log('Payment successful:', paymentResponse); // Log payment success
+                console.log('Payment successful:', paymentResponse);
 
                 await axios.post('http://localhost:3000/razorpay/updatetransactionstatus',
                     {
@@ -126,21 +133,22 @@ document.getElementById('rzp-button1').onclick = async function (e) {
                     },
                     { headers: { Authorization: token } }
                 );
+
                 alert('You are now a premium user!');
-                document.getElementById('rzp-button1').style.visibility = 'hidden'
-                document.getElementById('message').innerHTML = 'YOu are a premium user now'
-                localStorage.setItem('token', response.data.token)
-                showLeaderboard()
+                document.getElementById('rzp-button1').style.visibility = 'hidden';
+                document.getElementById('message').innerHTML = 'You are a premium user now';
+                localStorage.setItem('token', response.data.token);
+                showPremiumUserFeatures();
             },
         };
 
         const rzp1 = new Razorpay(options);
-        rzp1.open(); // Open Razorpay payment interface
+        rzp1.open();
         e.preventDefault();
 
         rzp1.on('payment.failed', function (response) {
-            console.log('Payment Failed:', response); // Log payment failure
-            alert('Something went wrong with the payment. Please try again!');
+            console.log('Payment Failed:', response);
+            alert('Payment failed. Please try again.');
         });
     } catch (err) {
         console.error("Error in Razorpay integration:", err.message);
@@ -148,28 +156,34 @@ document.getElementById('rzp-button1').onclick = async function (e) {
     }
 };
 
-function showLeaderboard() {
-    const inputElement = document.createElement("input");
-    inputElement.type = "button";
-    inputElement.value = "Show Leaderboard";
-    inputElement.onclick = async () => {
+// Function to download expenses as a file
+async function downloadExpenses() {
+    try {
         const token = localStorage.getItem("token");
-        const userLeaderBoardArray = await axios.get("http://localhost:3000/premium/showLeaderBoard", {
-            headers: { Authorization: token }
-        });
-        console.log(userLeaderBoardArray);
+        if (!token) {
+            alert("User is not authenticated. Please log in.");
+            return;
+        }
 
-        var leaderboardElem = document.getElementById("leaderboard");
-        leaderboardElem.innerHTML += `<h1> Leader Board </h1>`;
-        userLeaderBoardArray.data.forEach((userDetails) => {
-            leaderboardElem.innerHTML += `<li>Name - ${userDetails.name} Total Expenses - ${userDetails.totalExpenses}</li>`;
-        });
-    };
+        const response = await axios.get("http://localhost:3000/expense/download", { headers: { Authorization: token } });
 
-    document.getElementById("message").appendChild(inputElement);
+        const link = document.createElement('a');
+        link.href = response.data.fileUrl;
+        link.download = 'expenses.csv';
+        link.click();
+    } catch (err) {
+        console.error("Error downloading expenses:", err.message);
+        alert("Failed to download expenses.");
+    }
 }
-
-
 window.onload = function () {
     displayExpense();
+
+    // Add event listeners for filter buttons
+    document.getElementById('daily-filter').onclick = () => displayExpense('daily');
+    document.getElementById('weekly-filter').onclick = () => displayExpense('weekly');
+    document.getElementById('monthly-filter').onclick = () => displayExpense('monthly');
+
+    // Add event listener for the download button
+    document.getElementById('download-button').onclick = downloadExpenses;
 };

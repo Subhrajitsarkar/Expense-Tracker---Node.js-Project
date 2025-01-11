@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Tracker</title>
+    <link rel="stylesheet" href="../css/expense.css">
 </head>
 
 <body>
@@ -24,12 +25,23 @@
         </select>
         <button type="submit">Add Expense</button>
     </form>
+
     <h1 id="leaderboard"></h1>
     <ul id="ulId"></ul>
 
     <div id="message"></div>
 
     <button id="rzp-button1">Buy Premium</button>
+
+    <!-- Premium User Features -->
+    <div id="premium-filters" style="display: none;">
+        <button id="daily-filter">Daily</button>
+        <button id="weekly-filter">Weekly</button>
+        <button id="monthly-filter">Monthly</button>
+    </div>
+
+    <button id="download-button" style="display: none;">Download Expenses</button>
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="../js/expense.js"></script>

@@ -1,0 +1,168 @@
+/* Styling for the Expense Tracker */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f8fc;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px;
+    margin: 20px auto;
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+form input,
+form select,
+form button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+form button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+#ulId {
+    list-style: none;
+    padding: 0;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+}
+
+#ulId li {
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#ulId li button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#ulId li button:hover {
+    background-color: #a71d2a;
+}
+
+#rzp-button1 {
+    display: block;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px auto;
+    text-align: center;
+}
+
+#rzp-button1:hover {
+    background-color: #218838;
+}
+
+#message {
+    text-align: center;
+    margin: 20px auto;
+    font-size: 18px;
+    font-weight: bold;
+    color: #28a745;
+}
+
+#leaderboard {
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#leaderboard h1 {
+    font-size: 24px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+#leaderboard li {
+    font-size: 18px;
+    margin: 5px 0;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Premium user filters and download button */
+#premium-filters {
+    display: flex;
+    justify-content: center;
+    margin: 20px auto;
+    gap: 10px;
+}
+
+#premium-filters button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+#premium-filters button:hover {
+    background-color: #0056b3;
+}
+
+#download-button {
+    display: block;
+    background-color: #17a2b8;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px auto;
+    text-align: center;
+}
+
+#download-button:hover {
+    background-color: #138496;
+}
