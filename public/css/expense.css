@@ -1,45 +1,59 @@
 /* Styling for the Expense Tracker */
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f7f8fc;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9fafc;
     margin: 0;
     padding: 0;
-    color: #333;
+    color: #444;
+    line-height: 1.6;
 }
 
 form {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
     width: 90%;
-    max-width: 400px;
-    margin: 20px auto;
+    max-width: 450px;
+    margin: 30px auto;
 }
 
 form label {
     display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
 }
 
 form input,
 form select,
 form button {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+form input:focus,
+form select:focus {
+    border-color: #007bff;
+    outline: none;
 }
 
 form button {
     background-color: #007bff;
     color: #fff;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 20px;
+    transition: background-color 0.3s ease;
 }
 
 form button:hover {
@@ -49,34 +63,41 @@ form button:hover {
 #ulId {
     list-style: none;
     padding: 0;
-    margin: 20px auto;
+    margin: 30px auto;
     width: 90%;
-    max-width: 600px;
+    max-width: 700px;
 }
 
 #ulId li {
     background-color: #fff;
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+#ulId li:hover {
+    transform: scale(1.02);
 }
 
 #ulId li button {
     background-color: #dc3545;
     color: #fff;
     border: none;
-    border-radius: 3px;
-    padding: 5px 10px;
+    border-radius: 5px;
+    padding: 8px 12px;
     cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
 }
 
 #ulId li button:hover {
-    background-color: #a71d2a;
+    background-color: #b52b38;
 }
 
 #rzp-button1 {
@@ -84,12 +105,13 @@ form button:hover {
     background-color: #28a745;
     color: #fff;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
+    padding: 12px 20px;
+    font-size: 18px;
+    border-radius: 8px;
     cursor: pointer;
-    margin: 20px auto;
+    margin: 30px auto;
     text-align: center;
+    transition: background-color 0.3s ease;
 }
 
 #rzp-button1:hover {
@@ -99,51 +121,44 @@ form button:hover {
 #message {
     text-align: center;
     margin: 20px auto;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 700;
     color: #28a745;
 }
 
 #leaderboard {
     width: 90%;
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 10px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 15px 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #leaderboard h1 {
-    font-size: 24px;
+    font-size: 22px;
     color: #007bff;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-#leaderboard li {
-    font-size: 18px;
-    margin: 5px 0;
-    padding: 5px;
-    border-bottom: 1px solid #ddd;
-}
-
-/* Premium user filters and download button */
 #premium-filters {
     display: flex;
     justify-content: center;
     margin: 20px auto;
-    gap: 10px;
+    gap: 15px;
 }
 
 #premium-filters button {
     background-color: #007bff;
     color: #fff;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 14px;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    text-align: center;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
 }
 
 #premium-filters button:hover {
@@ -155,14 +170,42 @@ form button:hover {
     background-color: #17a2b8;
     color: #fff;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 20px;
     font-size: 16px;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    margin: 20px auto;
+    margin: 30px auto;
     text-align: center;
+    transition: background-color 0.3s ease;
 }
 
 #download-button:hover {
     background-color: #138496;
+}
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px auto;
+    gap: 10px;
+}
+
+#pagination button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#pagination button.active {
+    background-color: #0056b3;
+    font-weight: bold;
+}
+
+#pagination button:hover {
+    background-color: #0056b3;
 }
