@@ -168,7 +168,7 @@ async function downloadExpenses() {
         const response = await axios.get("http://localhost:3000/expense/download", { headers: { Authorization: token } });
 
         const link = document.createElement('a');
-        link.href = response.data.fileUrl;
+        link.href = response.data.fileURL;
         link.download = 'expenses.csv';
         link.click();
     } catch (err) {
