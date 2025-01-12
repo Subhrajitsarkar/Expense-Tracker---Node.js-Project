@@ -1,17 +1,17 @@
 const Expense = require('../models/expenseModel');
-let User = require('../models/userModel');
-let sequelize = require('../utils/database');
-let UserServices = require('../services/userservices');
-let S3service = require('../services/S3services');
+const User = require('../models/userModel');
+const sequelize = require('../utils/database');
+const UserServices = require('../services/userservices');
+const S3service = require('../services/S3services');
 
+// Download Expenses
 exports.downloadExpenses = async (req, res) => {
     try {
         const expenses = await UserServices.getExpenses(req);
         const stringifiedExpenses = JSON.stringify(expenses);
 
         const userId = req.user.id;
-
-        const filename = `Expense${userId}/${new Date()}.txt`;
+        const filename = `Expense${userId}/${new Date().toISOString()}.txt`;
         const fileURL = await S3service.uploadToS3(stringifiedExpenses, filename);
         res.status(200).json({ fileURL, success: true });
     } catch (err) {
@@ -19,6 +19,7 @@ exports.downloadExpenses = async (req, res) => {
     }
 };
 
+// Add Expense
 exports.addExpense = async (req, res) => {
     let t;
     try {
@@ -27,19 +28,18 @@ exports.addExpense = async (req, res) => {
         if (!price || !description || !category) {
             return res.status(400).json({ success: false, message: "Invalid input data" });
         }
-        // Start a transaction
+
         t = await sequelize.transaction();
 
-        // Create the expense
-        const expense = await Expense.create({ price, description, category, userId: req.user.id }, { transaction: t });
+        const expense = await Expense.create(
+            { price, description, category, userId: req.user.id },
+            { transaction: t }
+        );
 
-        // Update the user's total expenses
         const totalExpense = Number(req.user.totalExpenses) + Number(price);
         await User.update({ totalExpenses: totalExpense }, { where: { id: req.user.id }, transaction: t });
 
-        // Commit the transaction
         await t.commit();
-
         res.status(201).json({ success: true, expense });
     } catch (err) {
         if (t) {
@@ -50,13 +50,31 @@ exports.addExpense = async (req, res) => {
     }
 };
 
+// Get Expenses with Pagination and Filtering
 exports.getExpenses = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query; // Default to page 1, limit 10
-        const offset = (page - 1) * limit; // Calculate the offset
+        const { filter = 'all', page = 1, limit = 10 } = req.query; // Default page and limit if not provided
+        const offset = (page - 1) * limit;
 
+        let whereCondition = { userId: req.user.id };
+
+        // Apply filters based on user selection
+        if (filter === 'daily') {
+            const today = new Date().setHours(0, 0, 0, 0);
+            whereCondition.createdAt = { $gte: today };
+        } else if (filter === 'weekly') {
+            const lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            whereCondition.createdAt = { $gte: lastWeek };
+        } else if (filter === 'monthly') {
+            const lastMonth = new Date();
+            lastMonth.setMonth(lastMonth.getMonth() - 1);
+            whereCondition.createdAt = { $gte: lastMonth };
+        }
+
+        // Fetch expenses with pagination
         const { count, rows: expenses } = await Expense.findAndCountAll({
-            where: { userId: req.user.id },
+            where: whereCondition,
             order: [['createdAt', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset),
@@ -70,11 +88,12 @@ exports.getExpenses = async (req, res) => {
             expenses,
         });
     } catch (err) {
-        console.error('Error fetching expenses:', err.message);
+        console.error("Error fetching expenses:", err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
+// Delete Expense
 exports.deleteExpense = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -88,17 +107,17 @@ exports.deleteExpense = async (req, res) => {
             await t.rollback();
             return res.status(404).json({ success: false, message: "Expense not found or does not belong to the user" });
         }
+
         await Expense.destroy({ where: { id }, transaction: t });
 
         const updatedTotalExpense = Number(req.user.totalExpenses) - Number(expense.price);
         await User.update({ totalExpenses: updatedTotalExpense }, { where: { id: req.user.id }, transaction: t });
 
         await t.commit();
-
         res.status(200).json({ success: true, message: "Expense deleted successfully" });
     } catch (err) {
         await t.rollback();
-        console.error('Error deleting expense:', err.message);
+        console.error("Error deleting expense:", err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 };

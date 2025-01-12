@@ -1,5 +1,4 @@
 /* Styling for the Expense Tracker */
-
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #f9fafc;
@@ -183,6 +182,7 @@ form button:hover {
     background-color: #138496;
 }
 
+/* Pagination Styling */
 #pagination {
     display: flex;
     justify-content: center;
@@ -201,11 +201,22 @@ form button:hover {
     transition: background-color 0.3s ease;
 }
 
+/* Active button styling */
 #pagination button.active {
     background-color: #0056b3;
     font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
+/* Hover effect for pagination */
 #pagination button:hover {
     background-color: #0056b3;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Disable button styling */
+#pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
