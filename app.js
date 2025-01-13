@@ -2,6 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const fs = require('fs');
 const sequelize = require('./utils/database');
 const User = require('./models/userModel');
 const Expense = require('./models/expenseModel');
@@ -14,14 +18,18 @@ const signupRouter = require('./routers/signupRouter');
 const loginRouter = require('./routers/loginRouter');
 const expenseRouter = require('./routers/expenseRouter');
 const razorpayRouter = require('./routers/razorpayRouter');
-const premiumFeatureRoutes = require('./routers/premiumFeature')
-const resetPasswordRoutes = require('./routers/resetpassword')
+const premiumFeatureRoutes = require('./routers/premiumFeature');
+const resetPasswordRoutes = require('./routers/resetpassword');
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(helmet());
+app.use(compression());
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+app.use(morgan('combined', { stream: accessLogStream }));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'views', 'signup.html'));
@@ -40,7 +48,7 @@ app.use('/user', signupRouter);
 app.use('/user', loginRouter);
 app.use('/expense', expenseRouter);
 app.use('/razorpay', razorpayRouter);
-app.use('/premium', premiumFeatureRoutes)
+app.use('/premium', premiumFeatureRoutes);
 app.use('/password', resetPasswordRoutes);
 
 //The Expense model is designed to store information related to expenses created by users.
@@ -57,6 +65,6 @@ Forgotpassword.belongsTo(User);
 // Sync database and start the server
 sequelize.sync()
     .then(() => {
-        app.listen(3000, () => console.log('Server running at PORT 3000'));
+        app.listen(process.env.PORT || 3000, () => console.log('Server is running'));
     })
     .catch((err) => console.error('Error in syncing database:', err.message));

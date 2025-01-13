@@ -4,7 +4,7 @@ const User = require('../models/userModel');
 exports.authenticate = async (req, res, next) => {
     try {
         const token = req.headers.authorization;
-        const decodedToken = jwt.verify(token, 'subhra@123');
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
         const user = await User.findByPk(decodedToken.userId);
         if (!user) {
@@ -12,17 +12,6 @@ exports.authenticate = async (req, res, next) => {
         }
 
         req.user = user;
-
-        // req.user will carry:-
-        // req.user = {
-        //     id: 1,
-        //     name: "John Doe",
-        //     email: "john@example.com",
-        //     password: "hashedpassword123", // Typically hashed
-        //     createdAt: "2023-01-01T12:00:00.000Z",
-        //     updatedAt: "2023-01-01T12:00:00.000Z",
-        //     Sequelize instance methods and properties, e.g., .save(), .destroy()
-        // };
 
         next();
     } catch (err) {
