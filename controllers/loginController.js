@@ -2,12 +2,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-// The jwt.sign function creates a token that contains the userId and name of the user. These act as claims, or the data stored in the token. The token is signed using the JWT_SECRET key stored in the .env file. The token is then returned to the client.
+//The jwt.sign function creates a token that contains the userId and name of the user. These act as claims, or the data stored in the token. The token is signed using the JWT_SECRET key stored in the .env file. The token is then returned to the client.
 function generateAccessToken(id, name, ispremiumuser) {
     return jwt.sign({ userId: id, name, ispremiumuser }, process.env.JWT_SECRET);
 }
-
-exports.generateAccessToken = generateAccessToken;
 
 exports.login = async (req, res) => {
     try {

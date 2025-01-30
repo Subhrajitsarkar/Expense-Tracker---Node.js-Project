@@ -1,6 +1,6 @@
 const Razorpay = require('razorpay');
 const Order = require('../models/orderModel');
-const { generateAccessToken } = require('./loginController');
+let loginController = require('./loginController')
 
 exports.createOrder = async (req, res) => {
     try {
@@ -11,9 +11,9 @@ exports.createOrder = async (req, res) => {
             key_secret: process.env.RAZORPAY_KEY_SECRET,
         });
 
-        const amount = 10;
+        const amount = 100;
         const options = {
-            amount: amount * 10, // Amount in paise
+            amount: amount,
             currency: 'INR',
             receipt: `order_rcptid_${new Date().getTime()}`,
         };
@@ -47,7 +47,7 @@ exports.updateTransactionStatus = async (req, res) => {
 
         await Promise.all([promise1, promise2]);
 
-        res.status(202).json({ success: true, message: 'Transaction Successful', token: generateAccessToken(req.user.id, req.user.name, true) });
+        res.status(202).json({ success: true, message: 'Transaction Successful', token: loginController.generateAccessToken(userId, undefined, true) });
     } catch (err) {
         console.error('Error in updating transaction status:', err.message);
         res.status(500).json({ message: 'Something went wrong', error: err.message });
